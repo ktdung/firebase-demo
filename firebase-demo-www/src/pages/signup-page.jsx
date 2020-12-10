@@ -6,7 +6,9 @@ import {
   IconButton,
   InputAdornment,
   Button,
+  Typography,
 } from "@material-ui/core"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import Visibility from "@material-ui/icons/Visibility"
 import VisibilityOff from "@material-ui/icons/VisibilityOff"
 import clsx from "clsx"
@@ -19,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
+    flexDirection: "column",
   },
   form: {
     width: "350px",
@@ -34,6 +37,7 @@ export const Signup = () => {
   const classes = useStyles()
   const [password, setPassword] = useState("")
   const [email, setEmail] = useState("")
+  const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
   const handleClickShowPassword = () => {
@@ -46,19 +50,22 @@ export const Signup = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     const userCredentials = await firebase.auth().createUserWithEmailAndPassword(email, password)
-    console.log(userCredentials)
 
     await db.collection("users").doc(userCredentials.user.uid).set({
       email: userCredentials.user.email,
       emailVerified: userCredentials.user.emailVerified,
       providerId: userCredentials.user.providerId,
+      createdAt: Date.now(),
     })
+    setLoading(false)
     console.log("firestore doc written successfully")
   }
 
   return (
     <div className={classes.root}>
+      <Typography variant="h2">Sign Up</Typography>
       <form className={classes.form} onSubmit={handleFormSubmit}>
         <FormControl className={clsx(classes.formControl)}>
           <TextField
@@ -92,8 +99,8 @@ export const Signup = () => {
           />
         </FormControl>
 
-        <Button type="submit" variant="contained" color="primary">
-          SIGNUP
+        <Button disabled={loading} type="submit" variant="contained" color="primary">
+          {loading ? <CircularProgress /> : "SIGNUP"}
         </Button>
       </form>
     </div>

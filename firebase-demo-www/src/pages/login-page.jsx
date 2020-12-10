@@ -6,6 +6,8 @@ import {
   IconButton,
   InputAdornment,
   Button,
+  Typography,
+  CircularProgress,
 } from "@material-ui/core"
 import Visibility from "@material-ui/icons/Visibility"
 import VisibilityOff from "@material-ui/icons/VisibilityOff"
@@ -19,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
+    flexDirection: "column",
   },
   form: {
     width: "350px",
@@ -35,6 +38,7 @@ export const LogIn = () => {
   const [password, setPassword] = useState("")
   const [email, setEmail] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword)
@@ -46,12 +50,14 @@ export const LogIn = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
     const userCredentials = await firebase.auth().signInWithEmailAndPassword(email, password)
-    console.log(userCredentials)
+    setLoading(false)
   }
 
   return (
     <div className={classes.root}>
+      <Typography variant="h2">Log In</Typography>
       <form className={classes.form} onSubmit={handleFormSubmit}>
         <FormControl className={clsx(classes.formControl)}>
           <TextField
@@ -85,8 +91,8 @@ export const LogIn = () => {
           />
         </FormControl>
 
-        <Button type="submit" variant="contained" color="primary">
-          LOGIN
+        <Button disabled={loading} type="submit" variant="contained" color="primary">
+          {loading ? <CircularProgress /> : "LOGIN"}
         </Button>
       </form>
     </div>
